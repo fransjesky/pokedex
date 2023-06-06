@@ -1,3 +1,9 @@
+import Landing from '@/modules/Landing';
+
 export default function Home() {
-  return <main></main>;
+  return (
+    <main>
+      <Landing />
+    </main>
+  );
 }
