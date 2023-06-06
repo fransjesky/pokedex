@@ -4,8 +4,8 @@ export const Navigation = [
     url: '/',
   },
   {
-    label: 'games',
-    url: '/games',
+    label: 'moves',
+    url: '/moves',
   },
   {
     label: 'items',

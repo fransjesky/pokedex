@@ -24,10 +24,8 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={montserrat.className}>
-        <nav>
-          <Header />
-        </nav>
-        <main>{children}</main>
+        <Header />
+        <main style={{ marginTop: '5rem' }}>{children}</main>
       </body>
     </html>
   );
