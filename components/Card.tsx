@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import {
   Avatar,
+  Box,
   Card as CardComponent,
   CardHeader,
   CardContent,
@@ -21,6 +22,7 @@ import {
   DiamondOutlined as Rock,
   SportsKabaddiOutlined as Fighting,
   CatchingPokemonOutlined as Normal,
+  HelpOutlineOutlined as Unknown,
 } from '@mui/icons-material';
 
 interface CardProps {
@@ -32,8 +34,8 @@ interface CardProps {
 }
 
 function Card(props: CardProps) {
-  // define element background color
-  const defineElementBgColor = (type: string): string => {
+  // define type background color
+  const defineTypeBgColor = (type: string): string => {
     if (type === 'fire') return '#fd7d24';
     if (type === 'water') return '#4592c4';
     if (type === 'grass') return '#9bcc50';
@@ -45,10 +47,12 @@ function Card(props: CardProps) {
     if (type === 'ground') return '#f7de3f';
     if (type === 'rock') return '#a38c21';
     if (type === 'fighting') return '#d56723';
-    return '#a4acaf';
+    if (type === 'normal') return '#a4acaf';
+    return '#121212';
   };
 
-  const defineTypeIcon = (type: string) => {
+  // define type icon
+  const defineTypeIcon = (type: string): JSX.Element => {
     if (type === 'fire') return <Fire />;
     if (type === 'water') return <Water />;
     if (type === 'grass') return <Grass />;
@@ -60,25 +64,32 @@ function Card(props: CardProps) {
     if (type === 'ground') return <Ground />;
     if (type === 'rock') return <Rock />;
     if (type === 'fighting') return <Fighting />;
-    return <Normal />;
+    if (type === 'normal') return <Normal />;
+    return <Unknown />;
   };
 
   return (
     <CardComponent
       sx={{
-        maxWidth: 280,
+        maxWidth: {
+          xs: 280,
+          sm: 220,
+          md: 240,
+          lg: 260,
+          xl: 280,
+        },
         cursor: 'pointer',
-        transition: '0.5s all ease',
+        transition: '0.3s all ease',
         '&:hover': {
-          transform: 'translateY(-5px)',
-          transition: '0.5s all ease',
+          transform: 'translateY(-6px)',
+          transition: '0.3s all ease',
         },
       }}
     >
       <CardHeader
         avatar={
           <Avatar
-            sx={{ bgcolor: defineElementBgColor(props.type) }}
+            sx={{ bgcolor: defineTypeBgColor(props.type) }}
             aria-label='type'
           >
             {defineTypeIcon(props.type)}
@@ -87,20 +98,36 @@ function Card(props: CardProps) {
         title={`${props.name.charAt(0).toUpperCase()}${props.name.slice(1)}`}
         subheader={props.id}
       />
-      <Image
-        height={160}
-        width={280}
-        src={props.imageURL}
-        alt={props.name}
-        style={{ objectFit: 'contain' }}
-      />
-      <CardContent
-        sx={{ minHeight: 100, maxHeight: 100, backgroundColor: '#121212' }}
+      <Box
+        sx={{
+          height: {
+            xs: 200,
+          },
+          maxWidth: {
+            xs: 280,
+            sm: 220,
+            md: 240,
+            lg: 260,
+            xl: 280,
+          },
+          position: 'relative',
+        }}
       >
-        <Typography variant='body2' color='#ffffff'>
-          Rock Head
-        </Typography>
-        <Typography variant='caption' color='#ffffff80'>
+        <Image
+          fill
+          src={props.imageURL}
+          alt={props.name}
+          style={{ objectFit: 'contain' }}
+        />
+      </Box>
+      <CardContent
+        sx={{
+          minHeight: 100,
+          maxHeight: 100,
+          backgroundColor: '#121212',
+        }}
+      >
+        <Typography variant='caption' color='#ffffff'>
           {props.desc}
         </Typography>
       </CardContent>
