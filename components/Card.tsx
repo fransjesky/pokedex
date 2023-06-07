@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Image from 'next/image';
 import {
   Avatar,
@@ -6,6 +7,7 @@ import {
   CardHeader,
   CardContent,
   Typography,
+  IconButton,
 } from '@mui/material';
 
 // icons
@@ -24,16 +26,22 @@ import {
   CatchingPokemonOutlined as Normal,
   HelpOutlineOutlined as Unknown,
 } from '@mui/icons-material';
+import { text } from 'stream/consumers';
 
 interface CardProps {
   id: string;
   name: string;
+  originalName: string;
   type: string;
   imageURL: string;
+  altImageURL: string;
   desc: string;
 }
 
 function Card(props: CardProps) {
+  // state init
+  const [onHover, setOnHover] = useState(false);
+
   // define type background color
   const defineTypeBgColor = (type: string): string => {
     if (type === 'fire') return '#fd7d24';
@@ -70,7 +78,10 @@ function Card(props: CardProps) {
 
   return (
     <CardComponent
+      onMouseEnter={() => setOnHover(true)}
+      onMouseLeave={() => setOnHover(false)}
       sx={{
+        width: '100%',
         maxWidth: {
           xs: 280,
           sm: 220,
@@ -79,10 +90,10 @@ function Card(props: CardProps) {
           xl: 280,
         },
         cursor: 'pointer',
-        transition: '0.3s all ease',
+        transition: '0.5s all ease',
         '&:hover': {
-          transform: 'translateY(-6px)',
-          transition: '0.3s all ease',
+          transform: 'translateY(-4px)',
+          transition: '0.5s all ease',
         },
       }}
     >
@@ -97,11 +108,22 @@ function Card(props: CardProps) {
         }
         title={`${props.name.charAt(0).toUpperCase()}${props.name.slice(1)}`}
         subheader={props.id}
+        action={
+          <IconButton>
+            <Image
+              height={28}
+              width={28}
+              alt={props.name}
+              src={props.altImageURL}
+            />
+          </IconButton>
+        }
       />
       <Box
         sx={{
           height: {
             xs: 200,
+            xl: 220,
           },
           maxWidth: {
             xs: 280,
@@ -122,12 +144,15 @@ function Card(props: CardProps) {
       </Box>
       <CardContent
         sx={{
-          minHeight: 100,
-          maxHeight: 100,
-          backgroundColor: '#121212',
+          height: 120,
+          minHeight: 120,
+          maxHeight: 120,
         }}
       >
-        <Typography variant='caption' color='#ffffff'>
+        <Typography variant='h6' color='MenuText'>
+          {props.originalName}
+        </Typography>
+        <Typography variant='caption' color='InactiveCaptionText'>
           {props.desc}
         </Typography>
       </CardContent>

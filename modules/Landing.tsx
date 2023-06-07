@@ -103,9 +103,11 @@ export default function Landing() {
                 <Card
                   id={`#${pokemon.id.toString().padStart(4, '0')}`}
                   name={pokemon.name}
+                  originalName={pokemon.species_details.names[9].name}
                   type={pokemon.types[0].type.name}
                   imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
-                  desc={`${pokemon.species_details.flavor_text_entries[0].flavor_text}`}
+                  altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
+                  desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text}`}
                 />
               </Grid>
             );
