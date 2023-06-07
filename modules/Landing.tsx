@@ -71,48 +71,48 @@ export default function Landing() {
   }, [pokemonList]);
 
   return (
-    <Container maxWidth='lg' sx={{ display: 'flex', justifyContent: 'center' }}>
-      <Grid
-        container
-        rowSpacing={4}
-        sx={{
-          paddingTop: '2.5rem',
-          paddingBottom: '2.5rem',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundImage: 'url(/Pokeball.png)',
-          backgroundAttachment: 'fixed',
-          overflowY: 'auto',
-        }}
-      >
-        {pokemonList &&
-          pokemonList.map((pokemon, index) => {
-            return (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={6}
-                lg={4}
-                xl={3}
-                display='flex'
-                justifyContent='center'
-                key={index}
-              >
-                <Card
-                  id={`#${pokemon.id.toString().padStart(4, '0')}`}
-                  name={pokemon.name}
-                  originalName={pokemon.species_details.names[9].name}
-                  type={pokemon.types[0].type.name}
-                  imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
-                  altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
-                  desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text}`}
-                />
-              </Grid>
-            );
-          })}
-      </Grid>
-    </Container>
+    // <Container maxWidth='lg' sx={{ display: 'flex', justifyContent: 'center' }}>
+    <Grid
+      container
+      rowSpacing={4}
+      sx={{
+        paddingTop: '2.5rem',
+        paddingBottom: '2.5rem',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center center',
+        backgroundImage: 'url(/Pokeball.png)',
+        backgroundAttachment: 'fixed',
+        overflowY: 'auto',
+      }}
+    >
+      {pokemonList &&
+        pokemonList.map((pokemon, index) => {
+          return (
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              md={3}
+              lg={3}
+              xl={2}
+              display='flex'
+              justifyContent='center'
+              key={index}
+            >
+              <Card
+                id={`#${pokemon.id.toString().padStart(4, '0')}`}
+                name={pokemon.name}
+                originalName={pokemon.species_details.names[9].name}
+                type={pokemon.types[0].type.name}
+                imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
+                altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
+                desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text}`}
+              />
+            </Grid>
+          );
+        })}
+    </Grid>
+    // </Container>
   );
 }

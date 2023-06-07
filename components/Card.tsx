@@ -26,7 +26,6 @@ import {
   CatchingPokemonOutlined as Normal,
   HelpOutlineOutlined as Unknown,
 } from '@mui/icons-material';
-import { text } from 'stream/consumers';
 
 interface CardProps {
   id: string;
@@ -83,11 +82,11 @@ function Card(props: CardProps) {
       sx={{
         width: '100%',
         maxWidth: {
-          xs: 280,
-          sm: 220,
-          md: 240,
-          lg: 260,
-          xl: 280,
+          xs: 180,
+          sm: 200,
+          md: 220,
+          lg: 240,
+          xl: 260,
         },
         cursor: 'pointer',
         transition: '0.5s all ease',
@@ -121,16 +120,20 @@ function Card(props: CardProps) {
       />
       <Box
         sx={{
+          // height defined with width as the base for aspect ratio 16:9
           height: {
-            xs: 200,
-            xl: 220,
+            xs: 101.25,
+            sm: 112.5,
+            md: 123.75,
+            lg: 135,
+            xl: 146.25,
           },
-          maxWidth: {
-            xs: 280,
-            sm: 220,
-            md: 240,
-            lg: 260,
-            xl: 280,
+          width: {
+            xs: 180,
+            sm: 200,
+            md: 220,
+            lg: 240,
+            xl: 260,
           },
           position: 'relative',
         }}
