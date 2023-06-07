@@ -108,7 +108,7 @@ function Card(props: CardProps) {
         title={`${props.name.charAt(0).toUpperCase()}${props.name.slice(1)}`}
         subheader={props.id}
         action={
-          <IconButton>
+          <IconButton disableRipple>
             <Image
               height={28}
               width={28}

@@ -107,7 +107,10 @@ export default function Landing() {
                 type={pokemon.types[0].type.name}
                 imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
                 altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
-                desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text}`}
+                desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text.replace(
+                  /[\n\f]/g,
+                  ' '
+                )}`}
               />
             </Grid>
           );
