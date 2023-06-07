@@ -8,106 +8,10 @@ import Card from '@/components/Card';
 // api
 import getPokemons from '@/api/getPokemons';
 import getPokemonDetails from '@/api/getPokemonDetails';
+import getSpeciesDetails from '@/api/getSpeciesDetails';
 
-interface PokemonsProps {
-  count: number;
-  next: string;
-  previous: string;
-  results: {
-    name: string;
-    url: string;
-  }[];
-}
-
-interface PokemonListProps {
-  abilities: {
-    ability: { name: string; url: string };
-    is_hidden: boolean;
-    slot: number;
-  }[];
-  base_experience: number;
-  forms: {
-    name: string;
-    url: string;
-  }[];
-  game_indices: {
-    game_index: number;
-    version: {
-      name: string;
-      url: string;
-    }[];
-  }[];
-  height: number;
-  held_items: string[];
-  id: number;
-  is_default: boolean;
-  location_area_encounters: string;
-  moves: {
-    move: {
-      name: string;
-      url: string;
-    }[];
-    version_group_details: {
-      level_learned_at: number;
-      move_learn_method: {
-        name: string;
-        url: string;
-      };
-      version_group: {
-        name: string;
-        url: string;
-      };
-    }[];
-  }[];
-  name: string;
-  order: number;
-  past_types: string[];
-  species: {
-    name: string;
-    url: string;
-  };
-  sprites: {
-    back_default: string | null;
-    back_female: string | null;
-    back_shiny: string | null;
-    back_shiny_female: string | null;
-    front_default: string | null;
-    front_female: string | null;
-    front_shiny: string | null;
-    front_shiny_female: string | null;
-    other: {
-      dream_world: {
-        front_default: string | null;
-        front_female: string | null;
-      };
-      home: {
-        front_default: string | null;
-        front_female: string | null;
-        front_shiny: string | null;
-        front_shiny_female: string | null;
-      };
-      'official-artwork': {
-        front_default: string | null;
-        front_shiny: string | null;
-      };
-    };
-  };
-  stats: {
-    base_stat: number;
-    effort: number;
-    stat: {
-      name: string;
-      url: string;
-    };
-  }[];
-  types: {
-    slot: number;
-    type: {
-      name: string;
-      url: string;
-    };
-  }[];
-}
+// types
+import { PokemonsProps, PokemonListProps } from './types/LandingType';
 
 export default function Landing() {
   const [data, setData] = useState<PokemonsProps | null>(null);
@@ -115,6 +19,7 @@ export default function Landing() {
 
   useEffect(() => {
     const fetchPokemons = async () => {
+      // fetch list
       const pokemons = await getPokemons();
       setData(pokemons);
     };
@@ -124,18 +29,45 @@ export default function Landing() {
 
   useEffect(() => {
     const fetchPokemonDetails = async () => {
+      // array init
+      let pokeDetails: unknown[];
+      let specDetails: unknown[];
+
+      // fetch details
       const pokemonDetails = await Promise.all(
         data!.results.map((pokemon) => getPokemonDetails(pokemon.url))
       );
 
-      setPokemonList(pokemonDetails);
+      // fetch species
+      const speciesDetails = await Promise.all(
+        data!.results.map((pokemon) => getSpeciesDetails(pokemon.name))
+      );
+
+      // variables define
+      pokeDetails = pokemonDetails;
+      specDetails = speciesDetails;
+
+      // combine the fetched data
+      const completePokemonDetails: any[] = [];
+      pokemonDetails.map((data, index) => {
+        const specData = speciesDetails[index];
+        let tempPokemonDetails = {
+          ...data,
+          species_details: specData,
+        };
+
+        completePokemonDetails.push(tempPokemonDetails);
+      });
+
+      // set state based on the combined data
+      setPokemonList(completePokemonDetails);
     };
 
     data && fetchPokemonDetails();
   }, [data]);
 
   useEffect(() => {
-    console.log('list: ', pokemonList);
+    console.log('pokemon list: ', pokemonList);
   }, [pokemonList]);
 
   return (
@@ -173,7 +105,7 @@ export default function Landing() {
                   name={pokemon.name}
                   type={pokemon.types[0].type.name}
                   imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
-                  desc='There is a plant seed on its back right from the day this Pokémon is born. The seed slowly grows larger.'
+                  desc={`${pokemon.species_details.flavor_text_entries[0].flavor_text}`}
                 />
               </Grid>
             );
