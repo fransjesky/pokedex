@@ -2,6 +2,7 @@ import './globals.css';
 import { Montserrat } from 'next/font/google';
 
 // components
+import Head from 'next/head';
 import Header from '@/components/Header';
 
 const montserrat = Montserrat({
@@ -23,6 +24,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
+      <Head>
+        <link
+          rel='preload'
+          href='/_next/static/css/app/layout.css?v=1686225477758'
+          as='style'
+        />
+      </Head>
       <body className={montserrat.className}>
         <Header />
         <main style={{ marginTop: '5rem' }}>{children}</main>
