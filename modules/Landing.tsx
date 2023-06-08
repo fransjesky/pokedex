@@ -2,8 +2,11 @@
 
 // core components
 import { useState, useEffect } from 'react';
-import { Container, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import Card from '@/components/Card';
+
+// reusable components
+import Pagination from '@/components/Pagination';
 
 // api
 import getPokemons from '@/api/getPokemons';
@@ -14,18 +17,23 @@ import getSpeciesDetails from '@/api/getSpeciesDetails';
 import { PokemonsProps, PokemonListProps } from './types/LandingType';
 
 export default function Landing() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [offset, setOffset] = useState(0);
   const [data, setData] = useState<PokemonsProps | null>(null);
   const [pokemonList, setPokemonList] = useState<PokemonListProps[]>([]);
 
   useEffect(() => {
     const fetchPokemons = async () => {
+      setOffset((page - 1) * limit);
+
       // fetch list
-      const pokemons = await getPokemons();
+      const pokemons = await getPokemons({ offset });
       setData(pokemons);
     };
 
     fetchPokemons();
-  }, []);
+  }, [offset, page]);
 
   useEffect(() => {
     const fetchPokemonDetails = async () => {
@@ -38,13 +46,13 @@ export default function Landing() {
         data!.results.map((pokemon) => getPokemonDetails(pokemon.url))
       );
 
+      pokeDetails = pokemonDetails;
+
       // fetch species
       const speciesDetails = await Promise.all(
-        data!.results.map((pokemon) => getSpeciesDetails(pokemon.name))
+        pokemonDetails.map((pokemon) => getSpeciesDetails(pokemon.species.name))
       );
 
-      // variables define
-      pokeDetails = pokemonDetails;
       specDetails = speciesDetails;
 
       // combine the fetched data
@@ -60,62 +68,127 @@ export default function Landing() {
       });
 
       // set state based on the combined data
+      console.log('pokemon details: ', completePokemonDetails);
       setPokemonList(completePokemonDetails);
     };
 
     data && fetchPokemonDetails();
   }, [data]);
 
-  useEffect(() => {
-    console.log('pokemon list: ', pokemonList);
-  }, [pokemonList]);
+  // format string function
+  function formatString(input: string): string {
+    const words = input.split('-');
+    const formattedString = words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    return formattedString;
+  }
 
   return (
-    // <Container maxWidth='lg' sx={{ display: 'flex', justifyContent: 'center' }}>
-    <Grid
-      container
-      rowSpacing={4}
-      sx={{
-        paddingTop: '2.5rem',
-        paddingBottom: '2.5rem',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center center',
-        backgroundImage: 'url(/Pokeball.png)',
-        backgroundAttachment: 'fixed',
-        overflowY: 'auto',
-      }}
-    >
-      {pokemonList &&
-        pokemonList.map((pokemon, index) => {
-          return (
-            <Grid
-              item
-              xs={6}
-              sm={4}
-              md={3}
-              lg={3}
-              xl={2}
-              display='flex'
-              justifyContent='center'
-              key={index}
-            >
-              <Card
-                id={`#${pokemon.id.toString().padStart(4, '0')}`}
-                name={pokemon.name}
-                originalName={pokemon.species_details.names[9].name}
-                type={pokemon.types[0].type.name}
-                imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
-                altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
-                desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text.replace(
-                  /[\n\f]/g,
-                  ' '
-                )}`}
-              />
-            </Grid>
-          );
-        })}
-    </Grid>
-    // </Container>
+    <Box>
+      <Grid
+        container
+        rowSpacing={4}
+        sx={{
+          minHeight: 'calc(100vh - 2.5rem)',
+          paddingTop: '2.5rem',
+          paddingBottom: '2.5rem',
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center center',
+          backgroundImage: 'url(/Pokeball.png)',
+          backgroundAttachment: 'fixed',
+          overflowY: 'auto',
+        }}
+      >
+        {pokemonList &&
+          pokemonList.map((pokemon, index) => {
+            return (
+              <Grid
+                item
+                xs={6}
+                sm={4}
+                md={3}
+                lg={3}
+                xl={2}
+                display='flex'
+                justifyContent='center'
+                key={index}
+              >
+                <Card
+                  id={`#${pokemon.id.toString().padStart(4, '0')}`}
+                  name={
+                    pokemon.order >= 0 ? pokemon.name : pokemon.species.name
+                  }
+                  originalName={
+                    pokemon.species_details.names.length >= 10
+                      ? pokemon.species_details.names[9]?.name
+                      : pokemon.species_details.names[7]?.name
+                  }
+                  type={pokemon.types[0].type.name}
+                  imageURL={
+                    pokemon.sprites.other['official-artwork'].front_default
+                      ? `${pokemon.sprites.other['official-artwork'].front_default}`
+                      : null
+                  }
+                  altImageURL={
+                    pokemon.sprites.versions['generation-v']['black-white']
+                      .animated.front_default
+                      ? `${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`
+                      : null
+                  }
+                  desc={((): string => {
+                    const englishEntry =
+                      pokemon.species_details.flavor_text_entries.find(
+                        (entry) => entry.language.name === 'en'
+                      );
+
+                    return (
+                      englishEntry?.flavor_text.replace(/[\n\f]/g, ' ') ||
+                      `${formatString(
+                        pokemon.name
+                      )} data is currently unavailable.`
+                    );
+                  })()}
+                />
+              </Grid>
+            );
+          })}
+      </Grid>
+      <Box
+        sx={{
+          height: '5rem',
+          width: '100vw',
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
+        }}
+      >
+        <Box
+          sx={{
+            padding: '0.625rem',
+            borderRadius: '1rem',
+            border: '1px solid #2196f3',
+            backgroundColor: '#ffffff',
+            boxShadow:
+              '0 0.0625rem 0.5rem 0 rgba(0,0,0,.04), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,.04)',
+          }}
+        >
+          <Pagination
+            color='primary'
+            showFirstButton
+            showLastButton
+            count={data ? Math.ceil(data!.count / limit) : 0}
+            page={page}
+            onChange={(newPage) => setPage(newPage as number)}
+          />
+        </Box>
+      </Box>
+    </Box>
   );
 }
