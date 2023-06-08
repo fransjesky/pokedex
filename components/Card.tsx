@@ -25,7 +25,7 @@ import {
   SportsMartialArtsOutlined as Fighting,
   SentimentVeryDissatisfiedOutlined as Ghost,
   AcUnitOutlined as Ice,
-  CastleOutlined as Dragon,
+  GradeOutlined as Dragon,
   NightsStayOutlined as Dark,
   ShieldMoonOutlined as Steel,
   CatchingPokemonOutlined as Normal,
@@ -37,8 +37,8 @@ interface CardProps {
   name: string;
   originalName: string;
   type: string;
-  imageURL: string;
-  altImageURL: string;
+  imageURL: string | null;
+  altImageURL: string | null;
   desc: string;
 }
 
@@ -90,11 +90,22 @@ function Card(props: CardProps) {
     return <Unknown />;
   };
 
+  // format string function
+  function formatString(input: string): string {
+    const words = input.split('-');
+    const formattedString = words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    return formattedString;
+  }
+
   return (
     <CardComponent
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}
       sx={{
+        height: '22rem',
         width: '100%',
         borderLeft: `0.5rem solid ${defineTypeColor(props.type)}`,
         maxWidth: {
@@ -121,16 +132,25 @@ function Card(props: CardProps) {
             {defineTypeIcon(props.type)}
           </Avatar>
         }
-        title={`${props.name.charAt(0).toUpperCase()}${props.name.slice(1)}`}
+        title={`${formatString(props.name)}`}
         subheader={props.id}
         action={
           <IconButton>
-            <Image
-              height={30}
-              width={30}
-              alt={props.name}
-              src={props.altImageURL}
-            />
+            {props.altImageURL ? (
+              <Image
+                height={30}
+                width={30}
+                alt={props.name}
+                src={props.altImageURL}
+              />
+            ) : (
+              <img
+                height={30}
+                width={30}
+                alt={props.name}
+                src='/Pokemon-000.gif'
+              />
+            )}
           </IconButton>
         }
       />
@@ -156,13 +176,21 @@ function Card(props: CardProps) {
           overflow: 'hidden',
         }}
       >
-        <Image
-          fill
-          src={props.imageURL}
-          alt={props.name}
-          style={{ objectFit: 'contain' }}
-          sizes='(min-width: 600px) 123.75px, (min-width: 960px) 135px, (min-width: 1280px) 146.25px, (min-width: 1920px) 146.25px, 101.25px'
-        />
+        {props.imageURL ? (
+          <Image
+            fill
+            src={props.imageURL}
+            alt={props.name}
+            style={{ objectFit: 'contain' }}
+            sizes='(min-width: 600px) 123.75px, (min-width: 960px) 135px, (min-width: 1280px) 146.25px, (min-width: 1920px) 146.25px, 101.25px'
+          />
+        ) : (
+          <img
+            src='/Pokemon-001.gif'
+            alt={props.name}
+            style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+          />
+        )}
       </Box>
       <CardContent
         sx={{

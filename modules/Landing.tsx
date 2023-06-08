@@ -46,13 +46,13 @@ export default function Landing() {
         data!.results.map((pokemon) => getPokemonDetails(pokemon.url))
       );
 
+      pokeDetails = pokemonDetails;
+
       // fetch species
       const speciesDetails = await Promise.all(
-        data!.results.map((pokemon) => getSpeciesDetails(pokemon.name))
+        pokemonDetails.map((pokemon) => getSpeciesDetails(pokemon.species.name))
       );
 
-      // variables define
-      pokeDetails = pokemonDetails;
       specDetails = speciesDetails;
 
       // combine the fetched data
@@ -68,11 +68,22 @@ export default function Landing() {
       });
 
       // set state based on the combined data
+      console.log('pokemon details: ', completePokemonDetails);
       setPokemonList(completePokemonDetails);
     };
 
     data && fetchPokemonDetails();
   }, [data]);
+
+  // format string function
+  function formatString(input: string): string {
+    const words = input.split('-');
+    const formattedString = words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    return formattedString;
+  }
 
   return (
     <Box>
@@ -80,6 +91,7 @@ export default function Landing() {
         container
         rowSpacing={4}
         sx={{
+          minHeight: 'calc(100vh - 2.5rem)',
           paddingTop: '2.5rem',
           paddingBottom: '2.5rem',
           backgroundSize: 'cover',
@@ -106,15 +118,39 @@ export default function Landing() {
               >
                 <Card
                   id={`#${pokemon.id.toString().padStart(4, '0')}`}
-                  name={pokemon.name}
-                  originalName={pokemon.species_details.names[9].name}
+                  name={
+                    pokemon.order >= 0 ? pokemon.name : pokemon.species.name
+                  }
+                  originalName={
+                    pokemon.species_details.names.length >= 10
+                      ? pokemon.species_details.names[9]?.name
+                      : pokemon.species_details.names[7]?.name
+                  }
                   type={pokemon.types[0].type.name}
-                  imageURL={`${pokemon.sprites.other['official-artwork'].front_default}`}
-                  altImageURL={`${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`}
-                  desc={`${pokemon.species_details.flavor_text_entries[1].flavor_text.replace(
-                    /[\n\f]/g,
-                    ' '
-                  )}`}
+                  imageURL={
+                    pokemon.sprites.other['official-artwork'].front_default
+                      ? `${pokemon.sprites.other['official-artwork'].front_default}`
+                      : null
+                  }
+                  altImageURL={
+                    pokemon.sprites.versions['generation-v']['black-white']
+                      .animated.front_default
+                      ? `${pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}`
+                      : null
+                  }
+                  desc={((): string => {
+                    const englishEntry =
+                      pokemon.species_details.flavor_text_entries.find(
+                        (entry) => entry.language.name === 'en'
+                      );
+
+                    return (
+                      englishEntry?.flavor_text.replace(/[\n\f]/g, ' ') ||
+                      `${formatString(
+                        pokemon.name
+                      )} data is currently unavailable.`
+                    );
+                  })()}
                 />
               </Grid>
             );
@@ -122,7 +158,7 @@ export default function Landing() {
       </Grid>
       <Box
         sx={{
-          height: '2.5rem',
+          height: '5rem',
           width: '100vw',
           position: 'fixed',
           bottom: 0,
@@ -130,13 +166,28 @@ export default function Landing() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          zIndex: 999,
         }}
       >
-        <Pagination
-          count={data ? Math.ceil(data!.count / limit) : 0}
-          page={page}
-          onChange={(newPage) => setPage(newPage as number)}
-        />
+        <Box
+          sx={{
+            padding: '0.625rem',
+            borderRadius: '1rem',
+            border: '1px solid #2196f3',
+            backgroundColor: '#ffffff',
+            boxShadow:
+              '0 0.0625rem 0.5rem 0 rgba(0,0,0,.04), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,.04)',
+          }}
+        >
+          <Pagination
+            color='primary'
+            showFirstButton
+            showLastButton
+            count={data ? Math.ceil(data!.count / limit) : 0}
+            page={page}
+            onChange={(newPage) => setPage(newPage as number)}
+          />
+        </Box>
       </Box>
     </Box>
   );
