@@ -105,7 +105,7 @@ function Card(props: CardProps) {
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}
       sx={{
-        height: '22rem',
+        height: '21.25rem',
         width: '100%',
         borderLeft: `0.5rem solid ${defineTypeColor(props.type)}`,
         maxWidth: {
@@ -159,18 +159,18 @@ function Card(props: CardProps) {
         sx={{
           // height defined with width as the base for aspect ratio 16:9
           height: {
-            xs: 101.25,
-            sm: 112.5,
-            md: 123.75,
-            lg: 135,
-            xl: 146.25,
+            xs: 96.75,
+            sm: 108,
+            md: 119.25,
+            lg: 130.50,
+            xl: 141.75,
           },
           width: {
-            xs: 180,
-            sm: 200,
-            md: 220,
-            lg: 240,
-            xl: 260,
+            xs: 172,
+            sm: 192,
+            md: 212,
+            lg: 232,
+            xl: 252,
           },
           position: 'relative',
           overflow: 'hidden',
@@ -182,7 +182,7 @@ function Card(props: CardProps) {
             src={props.imageURL}
             alt={props.name}
             style={{ objectFit: 'contain' }}
-            sizes='(min-width: 600px) 123.75px, (min-width: 960px) 135px, (min-width: 1280px) 146.25px, (min-width: 1920px) 146.25px, 101.25px'
+            sizes='(min-width: 600px) 108px, (min-width: 960px) 119.25px, (min-width: 1280px) 130.50px, (min-width: 1920px) 141.75px, 96.75px'
           />
         ) : (
           <img

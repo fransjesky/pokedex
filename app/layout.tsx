@@ -13,7 +13,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: 'Pokedex',
+  title: 'Pokédex',
   description: 'Modern pokedex app built on Next 13 and Typescript',
 };
 
