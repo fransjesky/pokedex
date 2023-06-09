@@ -94,11 +94,7 @@ export default function Landing() {
           minHeight: 'calc(100vh - 2.5rem)',
           paddingTop: '2.5rem',
           paddingBottom: '2.5rem',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundImage: 'url(/Pokeball.png)',
-          backgroundAttachment: 'fixed',
+          backgroundColor: '#000000',
           overflowY: 'auto',
         }}
       >
@@ -148,7 +144,7 @@ export default function Landing() {
                       englishEntry?.flavor_text.replace(/[\n\f]/g, ' ') ||
                       `${formatString(
                         pokemon.name
-                      )} data is currently unavailable.`
+                      )} complete data is currently unavailable.`
                     );
                   })()}
                 />
@@ -173,14 +169,12 @@ export default function Landing() {
           sx={{
             padding: '0.625rem',
             borderRadius: '1rem',
-            border: '1px solid #2196f3',
-            backgroundColor: '#ffffff',
+            backgroundColor: '#121212',
             boxShadow:
               '0 0.0625rem 0.5rem 0 rgba(0,0,0,.04), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,.04)',
           }}
         >
           <Pagination
-            color='primary'
             showFirstButton
             showLastButton
             count={data ? Math.ceil(data!.count / limit) : 0}

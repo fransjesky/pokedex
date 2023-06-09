@@ -105,9 +105,8 @@ function Card(props: CardProps) {
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}
       sx={{
-        height: '22rem',
+        height: '21.5rem',
         width: '100%',
-        borderLeft: `0.5rem solid ${defineTypeColor(props.type)}`,
         maxWidth: {
           xs: 180,
           sm: 200,
@@ -116,14 +115,21 @@ function Card(props: CardProps) {
           xl: 260,
         },
         cursor: 'pointer',
+        borderBottom: `0.25rem solid ${defineTypeColor(props.type)}`,
+        backgroundSize: 'cover',
+        backgroundImage: props.imageURL ? 'url("/Background.jpeg")' : 'none',
+        backgroundPosition: 'center center',
         transition: '0.3s all ease',
         '&:hover': {
-          transform: 'translateY(-6px)',
+          transform: 'translateY(-0.5rem)',
+          boxShadow: `-0.25rem 0.5rem 1.25rem 0 ${defineTypeColor(props.type)}`,
           transition: '0.3s all ease',
+          zIndex: 2,
         },
       }}
     >
       <CardHeader
+        sx={{ backgroundColor: '#121212', whiteSpace: 'nowrap' }}
         avatar={
           <Avatar
             sx={{ bgcolor: defineTypeColor(props.type) }}
@@ -132,7 +138,11 @@ function Card(props: CardProps) {
             {defineTypeIcon(props.type)}
           </Avatar>
         }
-        title={`${formatString(props.name)}`}
+        title={
+          props.name.length <= 15
+            ? `${formatString(props.name)}`
+            : `${formatString(props.name).substring(0, 15) + '...'}`
+        }
         subheader={props.id}
         action={
           <IconButton>
@@ -165,6 +175,7 @@ function Card(props: CardProps) {
             lg: 135,
             xl: 146.25,
           },
+          // width defined based on the card width
           width: {
             xs: 180,
             sm: 200,
@@ -179,26 +190,24 @@ function Card(props: CardProps) {
         {props.imageURL ? (
           <Image
             fill
-            src={props.imageURL}
             alt={props.name}
+            src={props.imageURL}
             style={{ objectFit: 'contain' }}
-            sizes='(min-width: 600px) 123.75px, (min-width: 960px) 135px, (min-width: 1280px) 146.25px, (min-width: 1920px) 146.25px, 101.25px'
+            sizes='(min-width: 600px) 101.25px, (min-width: 960px) 112.50px, (min-width: 1280px) 135px, (min-width: 1920px) 146.25px, 96.75px'
           />
         ) : (
           <img
-            src='/Pokemon-001.gif'
             alt={props.name}
-            style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+            src='/Pokemon-001.gif'
+            style={{
+              objectFit: 'cover',
+              width: '100%',
+              height: '100%',
+            }}
           />
         )}
       </Box>
-      <CardContent
-        sx={{
-          height: 120,
-          minHeight: 120,
-          maxHeight: 120,
-        }}
-      >
+      <CardContent>
         <Typography
           variant='h6'
           color={defineTypeColor(props.type)}
@@ -208,7 +217,7 @@ function Card(props: CardProps) {
         </Typography>
         <Box
           sx={{
-            color: '#808080',
+            color: '#ececec',
             height: 65,
             maxWidth: '100%',
             display: '-webkit-box',
@@ -218,7 +227,9 @@ function Card(props: CardProps) {
             textOverflow: 'ellipsis',
           }}
         >
-          <Typography variant='caption'>{props.desc}</Typography>
+          <Typography variant='caption' fontWeight={300}>
+            {props.desc}
+          </Typography>
         </Box>
       </CardContent>
     </CardComponent>

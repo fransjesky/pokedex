@@ -1,9 +1,15 @@
+'use client';
+
+import theme from '@/theme';
+import { ThemeProvider } from '@mui/material';
+
+// modules
 import Landing from '@/modules/Landing';
 
-export default async function Home() {
+export default function Home() {
   return (
-    <main>
+    <ThemeProvider theme={theme}>
       <Landing />
-    </main>
+    </ThemeProvider>
   );
 }
