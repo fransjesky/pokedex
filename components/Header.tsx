@@ -22,7 +22,8 @@ export default function Header() {
         top: '0',
         left: '0',
         zIndex: 999,
-        backgroundColor: '#ffffff',
+        color: '#ffffff',
+        backgroundColor: '#121212',
         boxShadow:
           '0 0.0625rem 0.5rem 0 rgba(0,0,0,.04), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,.04)',
       }}
