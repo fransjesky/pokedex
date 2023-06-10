@@ -6,6 +6,8 @@ import {
   Card as CardComponent,
   CardHeader,
   CardContent,
+  Grid,
+  Modal,
   Typography,
   IconButton,
 } from '@mui/material';
@@ -29,22 +31,116 @@ import {
   NightsStayOutlined as Dark,
   ShieldMoonOutlined as Steel,
   CatchingPokemonOutlined as Normal,
+  AirOutlined as Flying,
   HelpOutlineOutlined as Unknown,
 } from '@mui/icons-material';
+
+// api
+import getPokemonAbility from '@/api/getPokemonAbility';
 
 interface CardProps {
   id: string;
   name: string;
   originalName: string;
-  type: string;
+  type: {
+    slot: number;
+    type: {
+      name: string;
+      url: string;
+    };
+  }[];
   imageURL: string | null;
   altImageURL: string | null;
   desc: string;
+  abilities: {
+    ability: {
+      name: string;
+      url: string;
+    };
+  }[];
+}
+
+interface AbilitiesProps {
+  ability: {
+    name: string;
+    url: string;
+  };
+  is_hidden?: boolean;
+  slot?: number;
+}
+
+interface AbilitiesList {
+  effect_changes: string[];
+  effect_entries: {
+    effect: string;
+    language: {
+      name: string;
+      url: string;
+    };
+    short_effect: string;
+  }[];
+  flavor_text_entries: {
+    flavor_text: string;
+    language: {
+      name: string;
+      url: string;
+    };
+    version_group: {
+      name: string;
+      url: string;
+    };
+  }[];
+  generation: {
+    name: string;
+    url: string;
+  };
+  id: number;
+  is_main_series: boolean;
+  name: string;
+  names: {
+    language: {
+      name: string;
+      url: string;
+    };
+    name: string;
+  }[];
+  pokemon: {
+    is_hidden: boolean;
+    pokemon: {
+      name: string;
+      url: string;
+    };
+    slot: number;
+  }[];
 }
 
 function Card(props: CardProps) {
   // state init
-  const [onHover, setOnHover] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [pokemonAbilities, setPokemonAbilities] = useState<AbilitiesList[]>([]);
+
+  // modal logic
+  const handleOpen = async (abilities: AbilitiesProps[]) => {
+    const fetchAbilities = await Promise.all(
+      abilities.map((data) => getPokemonAbility(data.ability.url))
+    );
+
+    // logic to filter duplicated ability by id
+    const completeAbilitiesData: AbilitiesList[] = [];
+    const uniqueIds = new Set();
+
+    fetchAbilities.forEach((item) => {
+      if (!uniqueIds.has(item.id)) {
+        completeAbilitiesData.push(item);
+        uniqueIds.add(item.id);
+      }
+    });
+
+    setPokemonAbilities(completeAbilitiesData);
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
 
   // define type color
   const defineTypeColor = (type: string): string => {
@@ -65,6 +161,7 @@ function Card(props: CardProps) {
     if (type === 'dark') return '#313131';
     if (type === 'steel') return '#9eb7b8';
     if (type === 'normal') return '#a4acaf';
+    if (type === 'flying') return '#3dc7ef';
     return '#121212';
   };
 
@@ -87,6 +184,7 @@ function Card(props: CardProps) {
     if (type === 'dark') return <Dark />;
     if (type === 'steel') return <Steel />;
     if (type === 'normal') return <Normal />;
+    if (type === 'flying') return <Flying />;
     return <Unknown />;
   };
 
@@ -102,10 +200,11 @@ function Card(props: CardProps) {
 
   return (
     <CardComponent
-      onMouseEnter={() => setOnHover(true)}
-      onMouseLeave={() => setOnHover(false)}
       sx={{
-        height: '21.5rem',
+        height: {
+          xs: '19.5rem',
+          sm: '21.5rem',
+        },
         width: '100%',
         maxWidth: {
           xs: 180,
@@ -115,37 +214,58 @@ function Card(props: CardProps) {
           xl: 260,
         },
         cursor: 'pointer',
-        borderBottom: `0.25rem solid ${defineTypeColor(props.type)}`,
+        border: '1px solid #121212',
+        borderBottom: `0.25rem solid ${defineTypeColor(
+          props.type[0].type.name
+        )}80`,
         backgroundSize: 'cover',
         backgroundImage: props.imageURL ? 'url("/Background.jpeg")' : 'none',
         backgroundPosition: 'center center',
         transition: '0.3s all ease',
         '&:hover': {
           transform: 'translateY(-0.5rem)',
-          boxShadow: `-0.25rem 0.5rem 1.25rem 0 ${defineTypeColor(props.type)}`,
+          border: `1px solid ${defineTypeColor(props.type[0].type.name)}`,
+          borderBottom: `0.25rem solid ${defineTypeColor(
+            props.type[0].type.name
+          )}`,
+          boxShadow: `0 0 1.25rem 0 ${defineTypeColor(
+            props.type[0].type.name
+          )}`,
           transition: '0.3s all ease',
           zIndex: 2,
         },
       }}
     >
       <CardHeader
-        sx={{ backgroundColor: '#121212', whiteSpace: 'nowrap' }}
+        sx={{
+          backgroundColor: '#121212',
+          '& 	.MuiCardHeader-content': {
+            overflow: 'hidden',
+          },
+          '& .MuiCardHeader-title': {
+            fontFamily: 'Montserrat',
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          },
+          '& .MuiCardHeader-avatar': {
+            marginRight: '0.5rem',
+          },
+        }}
         avatar={
           <Avatar
-            sx={{ bgcolor: defineTypeColor(props.type) }}
+            alt={props.name}
+            sx={{ bgcolor: defineTypeColor(props.type[0].type.name) }}
             aria-label='type'
           >
-            {defineTypeIcon(props.type)}
+            {defineTypeIcon(props.type[0].type.name)}
           </Avatar>
         }
-        title={
-          props.name.length <= 15
-            ? `${formatString(props.name)}`
-            : `${formatString(props.name).substring(0, 15) + '...'}`
-        }
+        title={`${formatString(props.name)}`}
         subheader={props.id}
         action={
-          <IconButton>
+          <IconButton onClick={() => handleOpen(props.abilities)}>
             {props.altImageURL ? (
               <Image
                 height={30}
@@ -190,6 +310,7 @@ function Card(props: CardProps) {
         {props.imageURL ? (
           <Image
             fill
+            priority
             alt={props.name}
             src={props.imageURL}
             style={{ objectFit: 'contain' }}
@@ -210,7 +331,7 @@ function Card(props: CardProps) {
       <CardContent>
         <Typography
           variant='h6'
-          color={defineTypeColor(props.type)}
+          color={defineTypeColor(props.type[0].type.name)}
           fontWeight={700}
         >
           {props.originalName}
@@ -232,6 +353,175 @@ function Card(props: CardProps) {
           </Typography>
         </Box>
       </CardContent>
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            maxHeight: '75vh',
+            width: {
+              xs: '90vw',
+              sm: '62.5vw',
+            },
+            p: 2,
+            borderRadius: '0.625rem',
+            position: 'absolute' as 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: '#ffffff',
+            backgroundColor: '#121212',
+            border: `1px solid ${defineTypeColor(props.type[0].type.name)}`,
+            boxShadow: `0 0 1.25rem 0 ${defineTypeColor(
+              props.type[0].type.name
+            )}`,
+            overflow: 'auto',
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+              <Box
+                sx={{
+                  height: '25rem',
+                  width: '100%',
+                  position: 'relative',
+                  backgroundSize: 'cover',
+                  backgroundImage: 'url("/Background.jpeg")',
+                  backgroundPosition: 'center center',
+                  borderRadius: '0.625rem',
+                }}
+              >
+                {props.imageURL ? (
+                  <Image
+                    fill
+                    priority
+                    quality={100}
+                    alt={props.name}
+                    src={props.imageURL}
+                    style={{ objectFit: 'contain' }}
+                    sizes='(min-width: 600px) 100%, (min-width: 960px) 100%, (min-width: 1280px) 100%, (min-width: 1920px) 100%, 100%'
+                  />
+                ) : (
+                  <img
+                    alt={props.name}
+                    src='/Pokemon-001.gif'
+                    style={{
+                      objectFit: 'cover',
+                      width: '100%',
+                      height: '100%',
+                    }}
+                  />
+                )}
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
+                  <Typography variant='h6'>{props.originalName}</Typography>
+                  <Typography
+                    variant='h3'
+                    fontWeight={900}
+                    sx={{ color: defineTypeColor(props.type[0].type.name) }}
+                  >
+                    {formatString(props.name)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={3} md={3} lg={3} xl={3}>
+                  <Box
+                    sx={{
+                      height: '100%',
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: {
+                        xs: 'space-around',
+                        sm: 'flex-end',
+                      },
+                      alignItems: 'center',
+                    }}
+                  >
+                    {props.type.map((value, index) => {
+                      return (
+                        <Box
+                          mr={2}
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                          key={index}
+                        >
+                          <Avatar
+                            sx={{ bgcolor: defineTypeColor(value.type.name) }}
+                          >
+                            {defineTypeIcon(value.type.name)}
+                          </Avatar>
+                          <Typography mt={1} variant='caption' fontWeight={700}>
+                            {formatString(value.type.name)}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </Grid>
+              </Grid>
+              <Typography mt={2} mb={2} variant='body2'>
+                {props.desc}
+              </Typography>
+              <Box>
+                <Typography
+                  variant='h6'
+                  sx={{
+                    marginBottom: '0.25rem',
+                    color: defineTypeColor(props.type[0].type.name),
+                    fontWeight: 900,
+                    position: 'relative',
+                    '&:before': {
+                      content: '""',
+                      height: '0.125rem',
+                      width: '25%',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      borderRadius: '0.25rem',
+                      background: `linear-gradient(90deg, ${defineTypeColor(
+                        props.type[0].type.name
+                      )}FF 0%, ${defineTypeColor(
+                        props.type[0].type.name
+                      )}00 100%)`,
+                    },
+                  }}
+                >
+                  Abilities
+                </Typography>
+                <Grid container spacing={2}>
+                  {pokemonAbilities.map((value, index) => {
+                    return (
+                      <Grid item xl={6} key={index}>
+                        <Typography variant='body1' fontWeight={700}>
+                          {formatString(value.name)}
+                        </Typography>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            color: 'rgba(255,255,255,0.5)',
+                            fontSize: 12,
+                            fontWeight: 300,
+                          }}
+                        >
+                          {value.flavor_text_entries.length > 0
+                            ? value.flavor_text_entries.find(
+                                (entry) => entry.language.name === 'en'
+                              )?.flavor_text
+                            : `This ability is from ${value.generation.name}, data is unavailable at this moment`}
+                        </Typography>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
     </CardComponent>
   );
 }

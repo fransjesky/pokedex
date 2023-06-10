@@ -68,7 +68,7 @@ export default function Landing() {
       });
 
       // set state based on the combined data
-      console.log('pokemon details: ', completePokemonDetails);
+      console.log('pokemons: ', completePokemonDetails);
       setPokemonList(completePokemonDetails);
     };
 
@@ -122,7 +122,7 @@ export default function Landing() {
                       ? pokemon.species_details.names[9]?.name
                       : pokemon.species_details.names[7]?.name
                   }
-                  type={pokemon.types[0].type.name}
+                  type={pokemon.types}
                   imageURL={
                     pokemon.sprites.other['official-artwork'].front_default
                       ? `${pokemon.sprites.other['official-artwork'].front_default}`
@@ -147,6 +147,7 @@ export default function Landing() {
                       )} complete data is currently unavailable.`
                     );
                   })()}
+                  abilities={pokemon.abilities}
                 />
               </Grid>
             );
@@ -175,8 +176,6 @@ export default function Landing() {
           }}
         >
           <Pagination
-            showFirstButton
-            showLastButton
             count={data ? Math.ceil(data!.count / limit) : 0}
             page={page}
             onChange={(newPage) => setPage(newPage as number)}
