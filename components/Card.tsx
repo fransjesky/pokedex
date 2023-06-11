@@ -243,7 +243,6 @@ function Card(props: CardProps) {
             overflow: 'hidden',
           },
           '& .MuiCardHeader-title': {
-            fontFamily: 'Montserrat',
             fontWeight: 700,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -311,6 +310,7 @@ function Card(props: CardProps) {
           <Image
             fill
             priority
+            quality={100}
             alt={props.name}
             src={props.imageURL}
             style={{ objectFit: 'contain' }}
@@ -356,12 +356,22 @@ function Card(props: CardProps) {
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
-            maxHeight: '75vh',
-            width: {
-              xs: '90vw',
-              sm: '62.5vw',
-            },
+            m: 0,
             p: 2,
+            maxHeight: {
+              xs: '70vh',
+              sm: '36.625rem',
+              md: '36.625rem',
+              lg: '36.625rem',
+              xl: '39.625rem',
+            },
+            width: {
+              xs: '85vw',
+              sm: '25rem',
+              md: '27.5rem',
+              lg: '30rem',
+              xl: '27.5rem',
+            },
             borderRadius: '0.625rem',
             position: 'absolute' as 'absolute',
             top: '50%',
@@ -377,7 +387,7 @@ function Card(props: CardProps) {
           }}
         >
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+            <Grid item xs={12}>
               <Box
                 sx={{
                   height: '25rem',
@@ -412,9 +422,9 @@ function Card(props: CardProps) {
                 )}
               </Box>
             </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+            <Grid item xs={12}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
+                <Grid item xs={12} sm={12} md={12} lg={9} xl={9}>
                   <Typography variant='h6'>{props.originalName}</Typography>
                   <Typography
                     variant='h3'
@@ -424,7 +434,7 @@ function Card(props: CardProps) {
                     {formatString(props.name)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={3} md={3} lg={3} xl={3}>
+                <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
                   <Box
                     sx={{
                       height: '100%',
@@ -432,7 +442,7 @@ function Card(props: CardProps) {
                       display: 'flex',
                       justifyContent: {
                         xs: 'space-around',
-                        sm: 'flex-end',
+                        lg: 'flex-end',
                       },
                       alignItems: 'center',
                     }}
