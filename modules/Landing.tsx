@@ -148,6 +148,7 @@ export default function Landing() {
                     );
                   })()}
                   abilities={pokemon.abilities}
+                  stats={pokemon.stats}
                 />
               </Grid>
             );

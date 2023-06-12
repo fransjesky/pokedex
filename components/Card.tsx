@@ -38,6 +38,10 @@ import {
 // api
 import getPokemonAbility from '@/api/getPokemonAbility';
 
+// custom components
+import Caption from './Caption';
+import Chart from './Chart';
+
 interface CardProps {
   id: string;
   name: string;
@@ -54,6 +58,14 @@ interface CardProps {
   desc: string;
   abilities: {
     ability: {
+      name: string;
+      url: string;
+    };
+  }[];
+  stats: {
+    base_stat: number;
+    effort: number;
+    stat: {
       name: string;
       url: string;
     };
@@ -197,6 +209,34 @@ function Card(props: CardProps) {
 
     return formattedString;
   }
+
+  // stats data
+  const statsData = [
+    {
+      stats: 'HP',
+      color: 'rgb(255, 99, 132)',
+    },
+    {
+      stats: 'Attack',
+      color: 'rgb(54, 162, 235)',
+    },
+    {
+      stats: 'Defense',
+      color: 'rgb(255, 206, 86)',
+    },
+    {
+      stats: 'Sp Atk',
+      color: 'rgb(75, 192, 192)',
+    },
+    {
+      stats: 'Sp Def',
+      color: 'rgb(153, 102, 255)',
+    },
+    {
+      stats: 'Speed',
+      color: 'rgb(255, 159, 64)',
+    },
+  ];
 
   return (
     <CardComponent
@@ -476,32 +516,8 @@ function Card(props: CardProps) {
               <Typography mt={2} mb={2} variant='body2'>
                 {props.desc}
               </Typography>
-              <Box>
-                <Typography
-                  variant='h6'
-                  sx={{
-                    marginBottom: '0.25rem',
-                    color: defineTypeColor(props.type[0].type.name),
-                    fontWeight: 900,
-                    position: 'relative',
-                    '&:before': {
-                      content: '""',
-                      height: '0.125rem',
-                      width: '25%',
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      borderRadius: '0.25rem',
-                      background: `linear-gradient(90deg, ${defineTypeColor(
-                        props.type[0].type.name
-                      )}FF 0%, ${defineTypeColor(
-                        props.type[0].type.name
-                      )}00 100%)`,
-                    },
-                  }}
-                >
-                  Abilities
-                </Typography>
+              <Box marginY={2}>
+                <Caption text='Abilities' type={props.type[0].type.name} />
                 <Grid container spacing={2}>
                   {pokemonAbilities.map((value, index) => {
                     return (
@@ -527,6 +543,53 @@ function Card(props: CardProps) {
                     );
                   })}
                 </Grid>
+              </Box>
+              <Box>
+                <Caption text='Stats' type={props.type[0].type.name} />
+                <Box marginY={2}>
+                  <Chart data={props.stats.map((data) => data.base_stat)} />
+                  <Typography variant='body1' fontWeight={700}>
+                    Base Stats
+                  </Typography>
+                  <Grid container spacing={1}>
+                    {statsData.map((value, index) => {
+                      return (
+                        <Grid item xs={4} key={index}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-start',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                mr: 1,
+                                height: '0.75rem',
+                                width: '1.625rem',
+                                border: '1px solid #ffffff',
+                                borderRadius: '0.125rem',
+                                backgroundColor: value.color,
+                              }}
+                            />
+                            <Typography variant='caption'>
+                              {value.stats}:{' '}
+                              <Box
+                                component='span'
+                                sx={{
+                                  color: value.color,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {props.stats[index].base_stat}
+                              </Box>
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
               </Box>
             </Grid>
           </Grid>
