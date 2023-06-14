@@ -149,6 +149,10 @@ export default function Landing() {
                   })()}
                   abilities={pokemon.abilities}
                   stats={pokemon.stats}
+                  height={pokemon.height}
+                  weight={pokemon.weight}
+                  exp={pokemon.base_experience}
+                  generation={pokemon.species_details.generation.url}
                 />
               </Grid>
             );

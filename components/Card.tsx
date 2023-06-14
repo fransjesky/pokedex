@@ -37,6 +37,7 @@ import {
 
 // api
 import getPokemonAbility from '@/api/getPokemonAbility';
+import getGenerationDetails from '@/api/getGenerationDetails';
 
 // custom components
 import Caption from './Caption';
@@ -70,6 +71,10 @@ interface CardProps {
       url: string;
     };
   }[];
+  height: number;
+  weight: number;
+  exp: number;
+  generation: string;
 }
 
 interface AbilitiesProps {
@@ -126,16 +131,53 @@ interface AbilitiesList {
   }[];
 }
 
+interface GenerationProps {
+  abilities: string[];
+  id: number;
+  main_region: {
+    name: string;
+    url: string;
+  };
+  moves: {
+    name: string;
+    url: string;
+  }[];
+  name: string;
+  names: {
+    language: {
+      name: string;
+      url: string;
+    }[];
+    name: string;
+  }[];
+  pokemon_species: {
+    name: string;
+    url: string;
+  }[];
+  types: {
+    name: string;
+    url: string;
+  }[];
+  version_groups: {
+    name: string;
+    url: string;
+  }[];
+}
+
 function Card(props: CardProps) {
   // state init
   const [open, setOpen] = useState(false);
   const [pokemonAbilities, setPokemonAbilities] = useState<AbilitiesList[]>([]);
+  const [generationDetails, setGenerationDetails] =
+    useState<GenerationProps | null>(null);
 
   // modal logic
-  const handleOpen = async (abilities: AbilitiesProps[]) => {
+  const handleOpen = async (abilities: AbilitiesProps[], gens: string) => {
     const fetchAbilities = await Promise.all(
       abilities.map((data) => getPokemonAbility(data.ability.url))
     );
+
+    const fetchGenerationDetails = await getGenerationDetails(gens);
 
     // logic to filter duplicated ability by id
     const completeAbilitiesData: AbilitiesList[] = [];
@@ -149,10 +191,60 @@ function Card(props: CardProps) {
     });
 
     setPokemonAbilities(completeAbilitiesData);
+    setGenerationDetails(fetchGenerationDetails);
     setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
+
+  function formatGeneration(input: string): string {
+    // Remove the "generation-" prefix
+    const generationNumber = input.slice(11);
+
+    // Convert Roman numerals to Arabic numerals
+    const romanToArabic = new Map<string, string>([
+      ['i', '1'],
+      ['ii', '2'],
+      ['iii', '3'],
+      ['iv', '4'],
+      ['v', '5'],
+      ['vi', '6'],
+      ['vii', '7'],
+      ['viii', '8'],
+      ['ix', '9'],
+    ]);
+
+    let arabicNumber = romanToArabic.get(generationNumber.toLowerCase());
+    if (!arabicNumber) {
+      // Default to the input value if it doesn't match any known Roman numerals
+      arabicNumber = generationNumber;
+    }
+
+    // Capitalize the first letter and join with the Arabic numeral
+    const formattedGeneration = `Gen ${arabicNumber
+      .charAt(0)
+      .toUpperCase()}${arabicNumber.slice(1)}`;
+
+    return formattedGeneration;
+  }
+
+  const formatVersion = (input: string) => {
+    const splitVersion = input.split('-');
+    const versions = splitVersion.map(
+      (version) => version.charAt(0).toUpperCase() + version.slice(1)
+    );
+    return `( Pokemon ${versions[0]} and ${versions[1]} )`;
+  };
+
+  const defineGeneration = () => {
+    if (generationDetails) {
+      return `${formatGeneration(generationDetails.name)} ${formatVersion(
+        generationDetails.version_groups[0].name
+      )}`;
+    } else {
+      return 'Unknown';
+    }
+  };
 
   // define type color
   const defineTypeColor = (type: string): string => {
@@ -304,7 +396,9 @@ function Card(props: CardProps) {
         title={`${formatString(props.name)}`}
         subheader={props.id}
         action={
-          <IconButton onClick={() => handleOpen(props.abilities)}>
+          <IconButton
+            onClick={() => handleOpen(props.abilities, props.generation)}
+          >
             {props.altImageURL ? (
               <Image
                 height={30}
@@ -393,7 +487,7 @@ function Card(props: CardProps) {
           </Typography>
         </Box>
       </CardContent>
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open} onClose={handleClose} disableScrollLock>
         <Box
           sx={{
             m: 0,
@@ -424,6 +518,13 @@ function Card(props: CardProps) {
               props.type[0].type.name
             )}`,
             overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: 0,
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'transparent',
+            },
           }}
         >
           <Grid container spacing={2}>
@@ -516,6 +617,21 @@ function Card(props: CardProps) {
               <Typography mt={2} mb={2} variant='body2'>
                 {props.desc}
               </Typography>
+              <Box>
+                <Typography variant='body1' fontWeight={700}>
+                  Generation
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: 12,
+                    fontWeight: 300,
+                  }}
+                >
+                  {defineGeneration()}
+                </Typography>
+              </Box>
               <Box marginY={2}>
                 <Caption text='Abilities' type={props.type[0].type.name} />
                 <Grid container spacing={2}>
@@ -588,6 +704,28 @@ function Card(props: CardProps) {
                         </Grid>
                       );
                     })}
+                  </Grid>
+                </Box>
+                <Box mt={2}>
+                  <Typography variant='body1' fontWeight={700}>
+                    Other Stats
+                  </Typography>
+                  <Grid container>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Height: {props.height ? props.height : 'N/A'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Weight: {props.weight ? props.weight : 'N/A'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Base Exp: {props.exp ? props.exp : 'N/A'}
+                      </Typography>
+                    </Grid>
                   </Grid>
                 </Box>
               </Box>
