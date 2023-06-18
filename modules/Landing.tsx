@@ -1,8 +1,10 @@
 'use client';
 
 // core components
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Grid } from '@mui/material';
+
+// custom components
 import Card from '@/components/Card';
 
 // reusable components
@@ -14,7 +16,7 @@ import getPokemonDetails from '@/api/getPokemonDetails';
 import getSpeciesDetails from '@/api/getSpeciesDetails';
 
 // types
-import { PokemonsProps, PokemonListProps } from './types/LandingType';
+import { PokemonsProps, PokemonListProps } from '../types/Landing';
 
 export default function Landing() {
   const [page, setPage] = useState(1);
@@ -86,7 +88,14 @@ export default function Landing() {
   }
 
   return (
-    <Box>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       <Grid
         container
         rowSpacing={4}
@@ -153,6 +162,7 @@ export default function Landing() {
                   weight={pokemon.weight}
                   exp={pokemon.base_experience}
                   generation={pokemon.species_details.generation.url}
+                  evolutions={pokemon.species_details.evolution_chain.url}
                 />
               </Grid>
             );
@@ -183,7 +193,10 @@ export default function Landing() {
           <Pagination
             count={data ? Math.ceil(data!.count / limit) : 0}
             page={page}
-            onChange={(newPage) => setPage(newPage as number)}
+            onChange={(newPage) => {
+              setPage(1);
+              setPage(newPage as number);
+            }}
           />
         </Box>
       </Box>
