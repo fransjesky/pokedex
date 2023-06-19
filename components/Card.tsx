@@ -89,6 +89,8 @@ function Card(props: CardProps) {
     // --------------------------------------------------
     // ---------- EVOLUTION CHAIN LOGIC SCRIPT ----------
     // --------------------------------------------------
+    console.log('Evolve Chain: ', fetchEvolvesChain);
+
     // fetch evolutions chain - (names)
     const tempNameArr = [];
     const baseFormName = fetchEvolvesChain.chain.species.name;
@@ -102,12 +104,17 @@ function Card(props: CardProps) {
 
     // fetch evolutions chain - (images)
     const tempImgArr = [];
-    const fetchBaseFormImage = await getSinglePokemon(baseFormName);
-    const fetchMidFormImage = midFormName
-      ? await getSinglePokemon(midFormName)
+    const baseFormURL = fetchEvolvesChain.chain.species.name;
+    const midFormURL = fetchEvolvesChain.chain.evolves_to[0]?.species.name;
+    const finalFormURL =
+      fetchEvolvesChain.chain.evolves_to[0]?.evolves_to[0]?.species.name;
+
+    const fetchBaseFormImage = await getSinglePokemon(baseFormURL);
+    const fetchMidFormImage = midFormURL
+      ? await getSinglePokemon(midFormURL)
       : null;
-    const fetchFinalFormImage = finalFormName
-      ? await getSinglePokemon(finalFormName)
+    const fetchFinalFormImage = finalFormURL
+      ? await getSinglePokemon(finalFormURL)
       : null;
 
     // destruct the data
@@ -683,10 +690,23 @@ function Card(props: CardProps) {
               </Box>
               <Box marginY={2}>
                 <Caption text='Evolutions' type={props.type[0].type.name} />
-                <SwiperComponent
-                  names={evolutionNameList}
-                  images={evolutionImageList}
-                />
+                <Box
+                  mt={1}
+                  sx={{
+                    paddingY: '0.625rem',
+                    borderRadius: '0.625rem',
+                    backgroundImage: 'url("/Card-Background.gif")',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed',
+                    backgroundPosition: 'center center',
+                  }}
+                >
+                  <SwiperComponent
+                    names={evolutionNameList}
+                    images={evolutionImageList}
+                  />
+                </Box>
               </Box>
             </Grid>
           </Grid>
