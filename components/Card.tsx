@@ -89,8 +89,6 @@ function Card(props: CardProps) {
     // --------------------------------------------------
     // ---------- EVOLUTION CHAIN LOGIC SCRIPT ----------
     // --------------------------------------------------
-    console.log('Evolve Chain: ', fetchEvolvesChain);
-
     // fetch evolutions chain - (names)
     const tempNameArr = [];
     const baseFormName = fetchEvolvesChain.chain.species.name;

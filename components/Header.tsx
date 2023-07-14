@@ -3,10 +3,8 @@
 // core components
 import Link from 'next/link';
 import Image from 'next/image';
-import { Box } from '@mui/material';
-
-// data
-import { Navigation } from '@/data/Navigations';
+import { Box, Typography } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 export default function Header() {
   return (
@@ -17,7 +15,7 @@ export default function Header() {
         width: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-around',
         position: 'fixed',
         top: '0',
         left: '0',
@@ -28,38 +26,38 @@ export default function Header() {
           '0 0.0625rem 0.5rem 0 rgba(0,0,0,.04), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,.04)',
       }}
     >
+      <Link href='https://www.pokemon.com/us' passHref>
+        <Image
+          priority
+          src='/Pokemon.svg'
+          width={120}
+          height={46}
+          alt='Pokemon Logo'
+        />
+      </Link>
       <Box
         sx={{
-          width: '22.5vw',
           display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           alignItems: 'center',
-          justifyContent: 'space-around',
         }}
       >
-        <Link href='/'>
-          <Image
-            priority
-            src='/Pokemon.svg'
-            width={146}
-            height={46}
-            alt='Pokemon Logo'
-          />
+        <Link href='https://github.com/fransjesky/pokedex' passHref>
+          <Typography
+            fontSize={12}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <GitHubIcon sx={{ mr: 1, fontSize: 16 }} /> fransjesky/pokedex
+          </Typography>
+          <Typography fontSize={10} sx={{ opacity: 0.5 }}>
+            ver 1.0 ( Initial Release )
+          </Typography>
         </Link>
-        {Navigation.map((nav, index) => {
-          return (
-            <Link
-              key={index}
-              href={nav.url}
-              style={{
-                fontSize: '12px',
-                fontWeight: 500,
-                textTransform: 'capitalize',
-              }}
-            >
-              {nav.label}
-            </Link>
-          );
-        })}
       </Box>
     </Box>
   );

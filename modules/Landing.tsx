@@ -70,7 +70,6 @@ export default function Landing() {
       });
 
       // set state based on the combined data
-      console.log('pokemons: ', completePokemonDetails);
       setPokemonList(completePokemonDetails);
     };
 
