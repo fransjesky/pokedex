@@ -1,31 +1,26 @@
 import {
   Chart as ChartJS,
-  RadialLinearScale,
-  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  Legend,
 } from 'chart.js';
-import { PolarArea } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
-ChartJS.register(RadialLinearScale, ArcElement, Tooltip);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
 
 interface ChartProps {
   data: number[];
 }
 
 export default function Chart(props: ChartProps) {
+  const labels = ['HP', 'Atk', 'Def', 'Sp Atk', 'Sp Def', 'Spd'];
+
   const data = {
-    labels: [
-      'HP',
-      'Attack',
-      'Defense',
-      'Special Attack',
-      'Special Defense',
-      'Speed',
-    ],
+    labels,
     datasets: [
       {
-        label: ' stat',
         data: props.data,
         backgroundColor: [
           'rgba(255, 99, 132, 1)',
@@ -35,28 +30,26 @@ export default function Chart(props: ChartProps) {
           'rgba(153, 102, 255, 1)',
           'rgba(255, 159, 64, 1)',
         ],
-        borderColor: 'transparent',
-        hoverBorderColor: '#ffffff',
-        borderWidth: 3,
       },
     ],
   };
 
   const options = {
-    layout: {
-      padding: 20,
-    },
-    scales: {
-      r: {
-        grid: {
-          color: 'rgba(255,255,255,0.1)',
-        },
-        ticks: {
-          display: false,
-        },
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
       },
+      title: {
+        display: false,
+        text: 'Base Stats',
+      },
+    },
+    animation: {
+      delay: 1000,
+      duration: 5000,
     },
   };
 
-  return <PolarArea data={data} options={options} />;
+  return <Bar data={data} options={options} />;
 }

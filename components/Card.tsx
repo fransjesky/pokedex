@@ -36,106 +36,45 @@ import {
 } from '@mui/icons-material';
 
 // api
+import getSinglePokemon from '@/api/getSinglePokemon';
 import getPokemonAbility from '@/api/getPokemonAbility';
+import getGenerationDetails from '@/api/getGenerationDetails';
+import getEvolutionsChain from '@/api/getEvolutionsChain';
 
 // custom components
 import Caption from './Caption';
 import Chart from './Chart';
+import SwiperComponent from './Swiper';
 
-interface CardProps {
-  id: string;
-  name: string;
-  originalName: string;
-  type: {
-    slot: number;
-    type: {
-      name: string;
-      url: string;
-    };
-  }[];
-  imageURL: string | null;
-  altImageURL: string | null;
-  desc: string;
-  abilities: {
-    ability: {
-      name: string;
-      url: string;
-    };
-  }[];
-  stats: {
-    base_stat: number;
-    effort: number;
-    stat: {
-      name: string;
-      url: string;
-    };
-  }[];
-}
-
-interface AbilitiesProps {
-  ability: {
-    name: string;
-    url: string;
-  };
-  is_hidden?: boolean;
-  slot?: number;
-}
-
-interface AbilitiesList {
-  effect_changes: string[];
-  effect_entries: {
-    effect: string;
-    language: {
-      name: string;
-      url: string;
-    };
-    short_effect: string;
-  }[];
-  flavor_text_entries: {
-    flavor_text: string;
-    language: {
-      name: string;
-      url: string;
-    };
-    version_group: {
-      name: string;
-      url: string;
-    };
-  }[];
-  generation: {
-    name: string;
-    url: string;
-  };
-  id: number;
-  is_main_series: boolean;
-  name: string;
-  names: {
-    language: {
-      name: string;
-      url: string;
-    };
-    name: string;
-  }[];
-  pokemon: {
-    is_hidden: boolean;
-    pokemon: {
-      name: string;
-      url: string;
-    };
-    slot: number;
-  }[];
-}
+// types
+import {
+  CardProps,
+  AbilitiesProps,
+  AbilitiesList,
+  GenerationProps,
+} from '@/types/Card';
 
 function Card(props: CardProps) {
   // state init
   const [open, setOpen] = useState(false);
   const [pokemonAbilities, setPokemonAbilities] = useState<AbilitiesList[]>([]);
+  const [generationDetails, setGenerationDetails] =
+    useState<GenerationProps | null>(null);
+  const [evolutionNameList, setEvolutionNameList] = useState<string[]>([]);
+  const [evolutionImageList, setEvolutionImageList] = useState<string[]>([]);
 
   // modal logic
-  const handleOpen = async (abilities: AbilitiesProps[]) => {
+  const handleOpen = async (
+    abilities: AbilitiesProps[],
+    gens: string,
+    evolve: string
+  ) => {
     const fetchAbilities = await Promise.all(
       abilities.map((data) => getPokemonAbility(data.ability.url))
     );
+
+    const fetchGenerationDetails = await getGenerationDetails(gens);
+    const fetchEvolvesChain = await getEvolutionsChain(evolve);
 
     // logic to filter duplicated ability by id
     const completeAbilitiesData: AbilitiesList[] = [];
@@ -147,12 +86,123 @@ function Card(props: CardProps) {
         uniqueIds.add(item.id);
       }
     });
+    // --------------------------------------------------
+    // ---------- EVOLUTION CHAIN LOGIC SCRIPT ----------
+    // --------------------------------------------------
+    // fetch evolutions chain - (names)
+    const tempNameArr = [];
+    const baseFormName = fetchEvolvesChain.chain.species.name;
+    const midFormName = fetchEvolvesChain.chain.evolves_to[0]?.species.name;
+    const finalFormName =
+      fetchEvolvesChain.chain.evolves_to[0]?.evolves_to[0]?.species.name;
 
+    baseFormName ? tempNameArr.push(baseFormName) : null;
+    midFormName ? tempNameArr.push(midFormName) : null;
+    finalFormName ? tempNameArr.push(finalFormName) : null;
+
+    // fetch evolutions chain - (images)
+    const tempImgArr = [];
+    const baseFormURL = fetchEvolvesChain.chain.species.name;
+    const midFormURL = fetchEvolvesChain.chain.evolves_to[0]?.species.name;
+    const finalFormURL =
+      fetchEvolvesChain.chain.evolves_to[0]?.evolves_to[0]?.species.name;
+
+    const fetchBaseFormImage = await getSinglePokemon(baseFormURL);
+    const fetchMidFormImage = midFormURL
+      ? await getSinglePokemon(midFormURL)
+      : null;
+    const fetchFinalFormImage = finalFormURL
+      ? await getSinglePokemon(finalFormURL)
+      : null;
+
+    // destruct the data
+    const baseImage =
+      fetchBaseFormImage.data.sprites.other['official-artwork'].front_default;
+    const midImage = fetchMidFormImage
+      ? fetchMidFormImage.data.sprites.other['official-artwork'].front_default
+      : null;
+    const finalImage = fetchFinalFormImage
+      ? fetchFinalFormImage.data.sprites.other['official-artwork'].front_default
+      : null;
+
+    // push the destructed data to temp arr
+    baseImage ? tempImgArr.push(baseImage) : null;
+    midImage ? tempImgArr.push(midImage) : null;
+    finalImage ? tempImgArr.push(finalImage) : null;
+    // --------------------------------------------------
+
+    // state assign
     setPokemonAbilities(completeAbilitiesData);
+    setGenerationDetails(fetchGenerationDetails);
+    setEvolutionNameList(tempNameArr);
+    setEvolutionImageList(tempImgArr);
+
+    // open modal
     setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
+
+  // format string function
+  function formatString(input: string): string {
+    const words = input.split('-');
+    const formattedString = words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    return formattedString;
+  }
+
+  // format generation string
+  const formatGeneration = (input: string): string => {
+    // Remove the "generation-" prefix
+    const generationNumber = input.slice(11);
+
+    // Convert Roman numerals to Arabic numerals
+    const romanToArabic = new Map<string, string>([
+      ['i', '1'],
+      ['ii', '2'],
+      ['iii', '3'],
+      ['iv', '4'],
+      ['v', '5'],
+      ['vi', '6'],
+      ['vii', '7'],
+      ['viii', '8'],
+      ['ix', '9'],
+    ]);
+
+    let arabicNumber = romanToArabic.get(generationNumber.toLowerCase());
+    if (!arabicNumber) {
+      // Default to the input value if it doesn't match any known Roman numerals
+      arabicNumber = generationNumber;
+    }
+
+    // Capitalize the first letter and join with the Arabic numeral
+    const formattedGeneration = `Gen ${arabicNumber
+      .charAt(0)
+      .toUpperCase()}${arabicNumber.slice(1)}`;
+
+    return formattedGeneration;
+  };
+
+  const defineGeneration = () => {
+    if (generationDetails) {
+      return `${formatGeneration(generationDetails.name)} ${formatVersion(
+        generationDetails.version_groups[0].name
+      )}`;
+    } else {
+      return 'Unknown';
+    }
+  };
+
+  // format version string
+  const formatVersion = (input: string) => {
+    const splitVersion = input.split('-');
+    const versions = splitVersion.map(
+      (version) => version.charAt(0).toUpperCase() + version.slice(1)
+    );
+    return `( Pokemon ${versions[0]} and ${versions[1]} )`;
+  };
 
   // define type color
   const defineTypeColor = (type: string): string => {
@@ -199,16 +249,6 @@ function Card(props: CardProps) {
     if (type === 'flying') return <Flying />;
     return <Unknown />;
   };
-
-  // format string function
-  function formatString(input: string): string {
-    const words = input.split('-');
-    const formattedString = words
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-
-    return formattedString;
-  }
 
   // stats data
   const statsData = [
@@ -263,7 +303,6 @@ function Card(props: CardProps) {
         backgroundPosition: 'center center',
         transition: '0.3s all ease',
         '&:hover': {
-          transform: 'translateY(-0.5rem)',
           border: `1px solid ${defineTypeColor(props.type[0].type.name)}`,
           borderBottom: `0.25rem solid ${defineTypeColor(
             props.type[0].type.name
@@ -304,7 +343,11 @@ function Card(props: CardProps) {
         title={`${formatString(props.name)}`}
         subheader={props.id}
         action={
-          <IconButton onClick={() => handleOpen(props.abilities)}>
+          <IconButton
+            onClick={() =>
+              handleOpen(props.abilities, props.generation, props.evolutions)
+            }
+          >
             {props.altImageURL ? (
               <Image
                 height={30}
@@ -393,13 +436,13 @@ function Card(props: CardProps) {
           </Typography>
         </Box>
       </CardContent>
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open} onClose={handleClose} disableScrollLock>
         <Box
           sx={{
             m: 0,
             p: 2,
             maxHeight: {
-              xs: '70vh',
+              xs: '32.5rem',
               sm: '36.625rem',
               md: '36.625rem',
               lg: '36.625rem',
@@ -424,6 +467,13 @@ function Card(props: CardProps) {
               props.type[0].type.name
             )}`,
             overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: 0,
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'transparent',
+            },
           }}
         >
           <Grid container spacing={2}>
@@ -516,6 +566,21 @@ function Card(props: CardProps) {
               <Typography mt={2} mb={2} variant='body2'>
                 {props.desc}
               </Typography>
+              <Box>
+                <Typography variant='body1' fontWeight={700}>
+                  Generation
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: 12,
+                    fontWeight: 300,
+                  }}
+                >
+                  {defineGeneration()}
+                </Typography>
+              </Box>
               <Box marginY={2}>
                 <Caption text='Abilities' type={props.type[0].type.name} />
                 <Grid container spacing={2}>
@@ -544,7 +609,7 @@ function Card(props: CardProps) {
                   })}
                 </Grid>
               </Box>
-              <Box>
+              <Box marginY={2}>
                 <Caption text='Stats' type={props.type[0].type.name} />
                 <Box marginY={2}>
                   <Chart data={props.stats.map((data) => data.base_stat)} />
@@ -554,7 +619,15 @@ function Card(props: CardProps) {
                   <Grid container spacing={1}>
                     {statsData.map((value, index) => {
                       return (
-                        <Grid item xs={4} key={index}>
+                        <Grid
+                          item
+                          xs={6}
+                          sm={4}
+                          md={4}
+                          lg={4}
+                          xl={4}
+                          key={index}
+                        >
                           <Box
                             sx={{
                               display: 'flex',
@@ -589,6 +662,48 @@ function Card(props: CardProps) {
                       );
                     })}
                   </Grid>
+                </Box>
+                <Box mt={2}>
+                  <Typography variant='body1' fontWeight={700}>
+                    Other Stats
+                  </Typography>
+                  <Grid container>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Height: {props.height ? props.height : 'N/A'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Weight: {props.weight ? props.weight : 'N/A'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={4} lg={4} xl={4}>
+                      <Typography variant='caption'>
+                        Base Exp: {props.exp ? props.exp : 'N/A'}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Box>
+              <Box marginY={2}>
+                <Caption text='Evolutions' type={props.type[0].type.name} />
+                <Box
+                  mt={1}
+                  sx={{
+                    paddingY: '0.625rem',
+                    borderRadius: '0.625rem',
+                    backgroundImage: 'url("/Card-Background.gif")',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed',
+                    backgroundPosition: 'center center',
+                  }}
+                >
+                  <SwiperComponent
+                    names={evolutionNameList}
+                    images={evolutionImageList}
+                  />
                 </Box>
               </Box>
             </Grid>
