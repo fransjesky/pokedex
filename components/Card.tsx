@@ -356,7 +356,7 @@ function Card(props: CardProps) {
                 src={props.altImageURL}
               />
             ) : (
-              <img
+              <Image
                 height={30}
                 width={30}
                 alt={props.name}
@@ -400,14 +400,14 @@ function Card(props: CardProps) {
             sizes='(min-width: 600px) 101.25px, (min-width: 960px) 112.50px, (min-width: 1280px) 135px, (min-width: 1920px) 146.25px, 96.75px'
           />
         ) : (
-          <img
+          <Image
+            fill
+            priority
+            quality={100}
             alt={props.name}
             src='/Pokemon-001.gif'
-            style={{
-              objectFit: 'cover',
-              width: '100%',
-              height: '100%',
-            }}
+            style={{ objectFit: 'cover' }}
+            sizes='(min-width: 600px) 101.25px, (min-width: 960px) 112.50px, (min-width: 1280px) 135px, (min-width: 1920px) 146.25px, 96.75px'
           />
         )}
       </Box>
@@ -500,14 +500,14 @@ function Card(props: CardProps) {
                     sizes='(min-width: 600px) 100%, (min-width: 960px) 100%, (min-width: 1280px) 100%, (min-width: 1920px) 100%, 100%'
                   />
                 ) : (
-                  <img
+                  <Image
+                    fill
+                    priority
+                    quality={100}
                     alt={props.name}
                     src='/Pokemon-001.gif'
-                    style={{
-                      objectFit: 'cover',
-                      width: '100%',
-                      height: '100%',
-                    }}
+                    style={{ objectFit: 'contain' }}
+                    sizes='(min-width: 600px) 100%, (min-width: 960px) 100%, (min-width: 1280px) 100%, (min-width: 1920px) 100%, 100%'
                   />
                 )}
               </Box>
