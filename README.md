@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/fransjesky/sinclair">
-    <img src="resources/Pokémon.svg" alt="harvard" width="600" height="165">
+    <img src="resources/logo.svg" alt="Pokemon" width="600" height="165">
   </a>
   <h1>Pokédex by Jesky</h1>
    <p align="center">
@@ -8,19 +8,19 @@
   </p>
 </div>
 
-> [!IMPORTANT] 
-> This project is a fan-made application and is not affiliated with, endorsed, or sponsored by Nintendo, Game Freak, or The Pokémon Company. All Pokémon-related trademarks, logos, and names are the property of their respective owners:
->
-> © 1995–2025 Nintendo / Creatures Inc. / GAME FREAK inc.
-Pokémon, Pokémon character names, Nintendo Switch, Nintendo 3DS, Nintendo DS, Wii, Wii U, and WiiWare are trademarks of Nintendo. All other trademarks are the property of their respective owners.
->
-> This app is intended for educational and entertainment purposes only. No copyright infringement is intended.
-
 ### About This Project
 
 This project initially began as a practice exercise for me to learn TypeScript and pagination. However, I became determined to enhance it as much as possible, both visually and functionally.
 
 I know there are still many areas that need improvement, but for now, I am using this project repository solely for documentation. If you’d like to contribute to or improve this project, or if you want to learn from it, feel free to fork the repository.
+
+> [!IMPORTANT]
+> This project is a fan-made application and is not affiliated with, endorsed, or sponsored by Nintendo, Game Freak, or The Pokémon Company. All Pokémon-related trademarks, logos, and names are the property of their respective owners:
+>
+> © 1995–2025 Nintendo / Creatures Inc. / GAME FREAK inc.
+> Pokémon, Pokémon character names, Nintendo Switch, Nintendo 3DS, Nintendo DS, Wii, Wii U, and WiiWare are trademarks of Nintendo. All other trademarks are the property of their respective owners.
+>
+> This app is intended for educational and entertainment purposes only. No copyright infringement is intended.
 
 ### Limitation
 
